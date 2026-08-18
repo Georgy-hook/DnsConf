@@ -16,6 +16,7 @@ jobs:
       REDIRECT: ${{ vars.REDIRECT }}
       EXCLUDE_REDIRECT: ${{ vars.EXCLUDE_REDIRECT }}
       DONOR_DNS: ${{ vars.DONOR_DNS }}
+      DONOR_DNS_DOMAINS: ${{ vars.DONOR_DNS_DOMAINS }}
 
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
