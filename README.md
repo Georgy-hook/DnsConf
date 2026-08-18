@@ -175,13 +175,25 @@ Then, a `DONOR_DNS` value will be called for each domain, fetching new IP addres
 
 Thus, the new IPs will be used for the further redirect rules upload process.
 
+`DONOR_DNS` must return addresses suitable for redirecting the selected services. Do not use an ordinary public resolver
+blindly: it can replace working bypass addresses with regular origin/CDN addresses.
+
+To limit donor lookups to selected services, set the optional `DONOR_DNS_DOMAINS` variable to comma-separated base
+domains, for example:
+
+    chatgpt.com,openai.com,oaistatic.com,oaiusercontent.com,auth0.com
+
+The listed domains and their subdomains will be checked. If the variable is not set, the donor is queried for every
+redirect domain. Query concurrency is limited locally, and an empty response is retried once.
+
 ---
 
 ## Multiple profiles setup
 
 ### Restrictions
 
-All profiles get _similar_ settings. That means `BLOCK`, `REDIRECT` and `EXCLUDE_REDIRECT` are **shared**.
+All profiles get _similar_ settings. That means `BLOCK`, `REDIRECT`, `EXCLUDE_REDIRECT` and `DONOR_DNS_DOMAINS` are
+**shared**.
 
 ### Multiple profiles of single provider
 
@@ -219,6 +231,9 @@ data: lists and rules used to set up blocks.
 
 ### NextDNS
 
+If redirects appear stale or are ignored, disable **Cache Boost** for this NextDNS profile and reconnect the client to
+clear its local DNS cache. Cache Boost can retain old answers and interfere with overrides.
+
 For `REDIRECT`:
 
 + Existing domain will be updated if redirect IP has changed
@@ -244,7 +259,8 @@ Previously generated data is removed **ONLY** when both `BLOCK` and `REDIRECT` s
 2) Go _Settings_ => _Environments_
 3) Create _New environment_ with name `DNS`
 4) Provide `AUTH_SECRET` and `CLIENT_ID` to **Environment secrets**
-5) Provide `DNS`,`REDIRECT`, `BLOCK` and `EXCLUDE_REDIRECT` to **Environment variables**
+5) Provide `DNS`, `REDIRECT`, `BLOCK`, `EXCLUDE_REDIRECT`, `DONOR_DNS` and optional `DONOR_DNS_DOMAINS` to
+   **Environment variables**
 
 + The action will be executed every day at **01:30 UTC**. To set another time, change cron at
   `.github/workflows/github_action.yml`
