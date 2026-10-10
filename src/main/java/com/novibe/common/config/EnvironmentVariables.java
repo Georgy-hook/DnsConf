@@ -22,6 +22,8 @@ public class EnvironmentVariables {
 
     public static final String DONOR_DNS_DOMAINS = System.getenv("DONOR_DNS_DOMAINS");
 
+    public static final String SYNC_REDIRECT_DOMAINS = System.getenv("SYNC_REDIRECT_DOMAINS");
+
     private static String extractMandatoryVariable(String key) {
         String env = System.getenv(key);
         if (isNull(env) || env.isBlank()) {
