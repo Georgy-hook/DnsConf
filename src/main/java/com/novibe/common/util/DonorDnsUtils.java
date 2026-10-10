@@ -16,14 +16,15 @@ import org.xbill.DNS.Type;
 
 import java.net.UnknownHostException;
 import java.time.Duration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.SequencedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 public class DonorDnsUtils {
 
@@ -56,7 +57,7 @@ public class DonorDnsUtils {
         try (ExecutorService executor = Executors.newFixedThreadPool(parallelQueries)) {
             for (BypassRoute bypassRoute : routesToCheck) {
                 Log.io("Comparing IP for %s with DNS query to %s".formatted(bypassRoute.website(), dnsProfile.donorDns()));
-                executor.submit(() -> replaceIp(bypassRoute, dnsResolver, changedRoutes, unresolvedRoutes));
+                executor.execute(() -> replaceIp(bypassRoute, dnsResolver, changedRoutes, unresolvedRoutes));
             }
         }
 
@@ -66,18 +67,28 @@ public class DonorDnsUtils {
 
     private static void replaceIp(BypassRoute bypassRoute, Resolver dnsResolver,
                                   AtomicInteger changedRoutes, AtomicInteger unresolvedRoutes) {
-        String donorIp = fetchDonorIp(bypassRoute.website(), dnsResolver);
-        if (isNull(donorIp)) {
+        try {
+            String currentIp = bypassRoute.ip();
+            SequencedSet<String> donorIps = fetchDonorIps(bypassRoute.website(), dnsResolver);
+            String newIp = chooseIp(currentIp, donorIps);
+
+            if (donorIps.isEmpty()) {
+                unresolvedRoutes.incrementAndGet();
+                Log.fail("DNS donor returned no usable public IPv4 address for %s; retained source IP %s"
+                        .formatted(bypassRoute.website(), currentIp));
+            } else if (!currentIp.equals(newIp)) {
+                Log.common("Changed IP for %s: %s -> %s".formatted(bypassRoute.website(), currentIp, newIp));
+                bypassRoute.ip(newIp);
+                changedRoutes.incrementAndGet();
+            }
+        } catch (RuntimeException e) {
             unresolvedRoutes.incrementAndGet();
-            Log.fail("DNS donor returned no IPv4 address for " + bypassRoute.website());
-        } else if (!bypassRoute.ip().equals(donorIp)) {
-            Log.common("Changed IP for %s: %s -> %s".formatted(bypassRoute.website(), bypassRoute.ip(), donorIp));
-            bypassRoute.ip(donorIp);
-            changedRoutes.incrementAndGet();
+            Log.fail("DNS donor check failed for %s; retained source IP %s: %s"
+                    .formatted(bypassRoute.website(), bypassRoute.ip(), e.getMessage()));
         }
     }
 
-    private static boolean matchesDomain(String domain, List<String> includedDomains) {
+    static boolean matchesDomain(String domain, List<String> includedDomains) {
         String normalizedDomain = normalizeDomain(domain);
         return includedDomains.stream()
                 .anyMatch(included -> normalizedDomain.equals(included) || normalizedDomain.endsWith("." + included));
@@ -86,6 +97,23 @@ public class DonorDnsUtils {
     private static String normalizeDomain(String domain) {
         String normalized = domain.strip().toLowerCase(Locale.ROOT);
         return normalized.endsWith(".") ? normalized.substring(0, normalized.length() - 1) : normalized;
+    }
+
+    // Keep the source IP when it is still a usable answer; otherwise choose the first usable donor answer.
+    static String chooseIp(String currentIp, SequencedSet<String> donorIps) {
+        String firstUsableIp = null;
+        for (String donorIp : donorIps) {
+            if (!isUsableDonorIp(donorIp)) {
+                continue;
+            }
+            if (donorIp.equals(currentIp)) {
+                return currentIp;
+            }
+            if (isNull(firstUsableIp)) {
+                firstUsableIp = donorIp;
+            }
+        }
+        return isNull(firstUsableIp) ? currentIp : firstUsableIp;
     }
 
     private static Resolver getDnsResolver(DnsProfile dnsProfile) {
@@ -103,21 +131,94 @@ public class DonorDnsUtils {
         }
     }
 
-    private static String fetchDonorIp(String domain, Resolver resolver) {
-        try {
-            for (int attempt = 0; attempt < MAX_QUERY_ATTEMPTS; attempt++) {
+    private static SequencedSet<String> fetchDonorIps(String domain, Resolver resolver) {
+        for (int attempt = 0; attempt < MAX_QUERY_ATTEMPTS; attempt++) {
+            try {
                 Lookup lookup = new Lookup(domain, Type.A);
                 lookup.setResolver(resolver);
                 Record[] records = lookup.run();
-                if (nonNull(records) && records.length > 0) {
-                    return ((ARecord) records[0]).getAddress().getHostAddress();
+                if (isNull(records)) {
+                    continue;
                 }
+
+                SequencedSet<String> donorIps = new LinkedHashSet<>();
+                for (Record record : records) {
+                    if (record instanceof ARecord aRecord) {
+                        String donorIp = aRecord.getAddress().getHostAddress();
+                        if (isUsableDonorIp(donorIp)) {
+                            donorIps.add(donorIp);
+                        }
+                    }
+                }
+                if (!donorIps.isEmpty()) {
+                    return donorIps;
+                }
+            } catch (TextParseException e) {
+                Log.fail("Invalid domain address: " + domain);
+                return new LinkedHashSet<>();
+            } catch (RuntimeException e) {
+                Log.fail("DNS donor query failed for %s (attempt %s/%s): %s"
+                        .formatted(domain, attempt + 1, MAX_QUERY_ATTEMPTS, e.getMessage()));
             }
-            return null;
-        } catch (TextParseException e) {
-            Log.fail("Invalid domain address: " + domain);
-            return null;
         }
+        return new LinkedHashSet<>();
     }
 
+    private static boolean isUsableDonorIp(String address) {
+        int[] octets = parseIpv4(address);
+        if (isNull(octets)) {
+            return false;
+        }
+
+        int first = octets[0];
+        int second = octets[1];
+        int third = octets[2];
+        int fourth = octets[3];
+
+        // Reject non-public address blocks that cannot be valid public-service answers.
+        return !(first == 0 || first == 10 || first == 127 || first >= 224
+                || first == 100 && second >= 64 && second <= 127
+                || first == 169 && second == 254
+                || first == 172 && second >= 16 && second <= 31
+                || first == 192 && second == 168
+                || first == 192 && second == 0 && third == 0 && fourth != 9 && fourth != 10
+                || first == 192 && second == 0 && third == 2
+                || first == 192 && second == 88 && third == 99
+                || first == 198 && second >= 18 && second <= 19
+                || first == 198 && second == 51 && third == 100
+                || first == 203 && second == 0 && third == 113);
+    }
+
+    private static int[] parseIpv4(String address) {
+        if (isNull(address)) {
+            return null;
+        }
+
+        String[] parts = address.split("\\.", -1);
+        if (parts.length != 4) {
+            return null;
+        }
+
+        int[] octets = new int[4];
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.isEmpty() || part.length() > 1 && part.charAt(0) == '0') {
+                return null;
+            }
+
+            int octet = 0;
+            for (int j = 0; j < part.length(); j++) {
+                char digit = part.charAt(j);
+                if (digit < '0' || digit > '9') {
+                    return null;
+                }
+                octet = octet * 10 + digit - '0';
+                if (octet > 255) {
+                    return null;
+                }
+            }
+            octets[i] = octet;
+        }
+        return octets;
+    }
 }
