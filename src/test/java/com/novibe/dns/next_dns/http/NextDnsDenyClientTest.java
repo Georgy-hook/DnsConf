@@ -1,0 +1,66 @@
+package com.novibe.dns.next_dns.http;
+
+import com.google.gson.Gson;
+import com.novibe.common.base_structures.DnsProfile;
+import com.novibe.common.exception.DnsApiException;
+import com.novibe.dns.next_dns.http.dto.request.CreateDenyDto;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+class NextDnsDenyClientTest {
+
+    @Mock
+    private HttpClient httpClient;
+
+    @Spy
+    private Gson jsonMapper = new Gson();
+
+    @Spy
+    private DnsProfile dnsProfile = DnsProfile.builder().clientId("profile").authSecret("api-key").build();
+
+    @Spy
+    @InjectMocks
+    private NextDnsDenyClient nextDnsDenyClient;
+
+    @Test
+    void throwsAfterProcessingEveryDenyWhenApiAnswersWithErrors() throws IOException, InterruptedException {
+        doReturn(response(200, "{\"errors\":[{\"code\":\"invalidContent\"}]}"), response(200, "{}"))
+                .when(httpClient).send(any(), any());
+
+        DnsApiException exception = assertThrows(DnsApiException.class,
+                () -> nextDnsDenyClient.saveDenys(List.of(new CreateDenyDto("example.com"), new CreateDenyDto("ads.example"))));
+
+        assertEquals("Failed to save NextDNS denylist entries: 1 successful, 1 failed of 2 requests", exception.getMessage());
+        verify(httpClient, times(2)).send(any(), any());
+    }
+
+    private HttpResponse<String> response(int statusCode, String body) {
+        HttpResponse<String> response = mock();
+        lenient().when(response.statusCode()).thenReturn(statusCode);
+        lenient().when(response.body()).thenReturn(body);
+        lenient().when(response.request())
+                .thenReturn(HttpRequest.newBuilder(URI.create("https://api.nextdns.test/denylist")).build());
+        return response;
+    }
+}

@@ -1,6 +1,9 @@
 package com.novibe.dns.next_dns;
 
 import com.novibe.common.base_structures.BypassRoute;
+import com.novibe.common.base_structures.DnsProfile;
+import com.novibe.common.data_sources.HostsBlockListsLoader;
+import com.novibe.common.data_sources.HostsOverrideListsLoader;
 import com.novibe.common.exception.UserInputException;
 import com.novibe.dns.next_dns.http.dto.request.CreateRewriteDto;
 import com.novibe.dns.next_dns.service.NextDnsDenyService;
@@ -52,8 +55,72 @@ class NextDnsTaskRunnerTest {
         assertEquals(List.of("deny.removeAll", "rewrite.removeAll"), events);
     }
 
+    @Test
+    void rejectsMissingSyncRootBeforeApplyingBlockSources() {
+        List<String> events = new ArrayList<>();
+        NextDnsTaskRunner runner = runner(events);
+        runner.setOverrideListsLoader(new HostsOverrideListsLoader() {
+            @Override
+            public List<BypassRoute> fetchWebsites(List<String> urls) {
+                events.add("redirect.fetch");
+                return List.of(new BypassRoute("1.2.3.4", "chatgpt.com"));
+            }
+        });
+        runner.setBlockListsLoader(new HostsBlockListsLoader() {
+            @Override
+            public List<String> fetchWebsites(List<String> urls) {
+                events.add("block.fetch");
+                return List.of("example.org");
+            }
+        });
+
+        assertThrows(
+                UserInputException.class,
+                () -> runner.process(
+                        List.of("https://block.example/list"),
+                        List.of("https://redirect.example/list"),
+                        List.of("chatgpt.com", "openai.com")
+                )
+        );
+
+        assertEquals(List.of("redirect.fetch", "rewrite.build"), events);
+    }
+
+    @Test
+    void rejectsRedirectFetchFailureBeforeApplyingBlockSources() {
+        List<String> events = new ArrayList<>();
+        NextDnsTaskRunner runner = runner(events);
+        runner.setOverrideListsLoader(new HostsOverrideListsLoader() {
+            @Override
+            public List<BypassRoute> fetchWebsites(List<String> urls) {
+                events.add("redirect.fetch");
+                throw UserInputException.noStackTrace("redirect source unavailable");
+            }
+        });
+        runner.setBlockListsLoader(new HostsBlockListsLoader() {
+            @Override
+            public List<String> fetchWebsites(List<String> urls) {
+                events.add("block.fetch");
+                return List.of("example.org");
+            }
+        });
+
+        assertThrows(
+                UserInputException.class,
+                () -> runner.process(
+                        List.of("https://block.example/list"),
+                        List.of("https://redirect.example/list"),
+                        List.of("chatgpt.com")
+                )
+        );
+
+        assertEquals(List.of("redirect.fetch"), events);
+    }
+
     private static NextDnsTaskRunner runner(List<String> events) {
-        return new NextDnsTaskRunner(new StubRewriteService(events), new StubDenyService(events));
+        NextDnsTaskRunner runner = new NextDnsTaskRunner(new StubRewriteService(events), new StubDenyService(events));
+        runner.setDnsProfile(DnsProfile.builder().build());
+        return runner;
     }
 
     private static class StubDenyService extends NextDnsDenyService {
@@ -99,7 +166,7 @@ class NextDnsTaskRunnerTest {
         @Override
         public Map<String, CreateRewriteDto> buildNewRewrites(List<BypassRoute> overrides) {
             events.add("rewrite.build");
-            return Map.of();
+            return super.buildNewRewrites(overrides);
         }
 
         @Override

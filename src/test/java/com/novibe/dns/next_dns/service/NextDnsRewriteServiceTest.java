@@ -6,9 +6,7 @@ import com.novibe.common.service.ExcludeRedirectCheckService;
 import com.novibe.dns.next_dns.http.NextDnsRewriteClient;
 import com.novibe.dns.next_dns.http.dto.request.CreateRewriteDto;
 import com.novibe.dns.next_dns.http.dto.response.rewrite.RewriteDto;
-import com.novibe.dns.next_dns.http.dto.response.rewrite.SingleRewriteResponse;
 import org.junit.jupiter.api.Test;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -281,15 +279,13 @@ class NextDnsRewriteServiceTest {
         }
 
         @Override
-        public @Nullable SingleRewriteResponse deleteRewriteById(String id) {
-            deletedIds.add(id);
-            return null;
+        public void deleteRewritesByIds(List<String> ids) {
+            deletedIds.addAll(ids);
         }
 
         @Override
-        public SingleRewriteResponse saveRewrite(CreateRewriteDto rewriteDto) {
-            savedRequests.add(rewriteDto);
-            return null;
+        public void saveRewrites(List<CreateRewriteDto> rewriteDtos) {
+            savedRequests.addAll(rewriteDtos);
         }
     }
 }

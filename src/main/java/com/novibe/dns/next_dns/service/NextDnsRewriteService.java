@@ -4,7 +4,6 @@ import com.novibe.common.base_structures.BypassRoute;
 import com.novibe.common.exception.UserInputException;
 import com.novibe.common.service.ExcludeRedirectCheckService;
 import com.novibe.common.util.Log;
-import com.novibe.dns.next_dns.http.NextDnsRateLimitedApiProcessor;
 import com.novibe.dns.next_dns.http.NextDnsRewriteClient;
 import com.novibe.dns.next_dns.http.dto.request.CreateRewriteDto;
 import com.novibe.dns.next_dns.http.dto.response.rewrite.RewriteDto;
@@ -43,7 +42,7 @@ public class NextDnsRewriteService {
             List<String> synchronizedDomains
     ) {
         List<String> normalizedSynchronizedDomains = normalizeSynchronizedDomains(synchronizedDomains);
-        requireSynchronizedRoots(newRewriteRequests, normalizedSynchronizedDomains);
+        validateSynchronizedRoots(newRewriteRequests, synchronizedDomains);
 
         List<RewriteDto> existingRewrites = getExistingRewrites();
 
@@ -88,16 +87,16 @@ public class NextDnsRewriteService {
 
         if (!outdatedIds.isEmpty()) {
             Log.io("Removing %s outdated rewrites from NextDNS".formatted(outdatedIds.size()));
-            NextDnsRateLimitedApiProcessor.callApi(outdatedIds, nextDnsRewriteClient::deleteRewriteById);
+            nextDnsRewriteClient.deleteRewritesByIds(outdatedIds);
         }
         if (!obsoleteIds.isEmpty()) {
             Log.io("Removing %s obsolete synchronized rewrites from NextDNS for domains: %s"
                     .formatted(obsoleteIds.size(), obsoleteDomains));
-            NextDnsRateLimitedApiProcessor.callApi(obsoleteIds, nextDnsRewriteClient::deleteRewriteById);
+            nextDnsRewriteClient.deleteRewritesByIds(obsoleteIds);
         }
         if (!ignoredIds.isEmpty()) {
             Log.io("Removing %s excluded rewrites from NextDNS".formatted(ignoredIds.size()));
-            NextDnsRateLimitedApiProcessor.callApi(ignoredIds, nextDnsRewriteClient::deleteRewriteById);
+            nextDnsRewriteClient.deleteRewritesByIds(ignoredIds);
         }
         return List.copyOf(newRewriteRequests.values());
     }
@@ -179,6 +178,13 @@ public class NextDnsRewriteService {
         }
     }
 
+    public void validateSynchronizedRoots(
+            Map<String, CreateRewriteDto> rewriteRequests,
+            List<String> synchronizedDomains
+    ) {
+        requireSynchronizedRoots(rewriteRequests, normalizeSynchronizedDomains(synchronizedDomains));
+    }
+
     private static List<String> normalizeSynchronizedDomains(List<String> synchronizedDomains) {
         return synchronizedDomains.stream()
                 .map(NextDnsRewriteService::normalizeDomain)
@@ -234,7 +240,7 @@ public class NextDnsRewriteService {
 
     public void saveRewrites(List<CreateRewriteDto> createRewriteDtos) {
         Log.io("Saving %s new rewrites to NextDNS...".formatted(createRewriteDtos.size()));
-        NextDnsRateLimitedApiProcessor.callApi(createRewriteDtos, nextDnsRewriteClient::saveRewrite);
+        nextDnsRewriteClient.saveRewrites(createRewriteDtos);
     }
 
     public void removeAll() {
@@ -242,7 +248,7 @@ public class NextDnsRewriteService {
         List<RewriteDto> list = nextDnsRewriteClient.fetchRewrites();
         List<String> ids = list.stream().map(RewriteDto::id).toList();
         Log.io("Removing rewrites from NextDNS");
-        NextDnsRateLimitedApiProcessor.callApi(ids, nextDnsRewriteClient::deleteRewriteById);
+        nextDnsRewriteClient.deleteRewritesByIds(ids);
     }
 
 }

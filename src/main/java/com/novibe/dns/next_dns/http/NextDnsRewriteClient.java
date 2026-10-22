@@ -1,5 +1,6 @@
 package com.novibe.dns.next_dns.http;
 
+import com.novibe.common.exception.DnsApiException;
 import com.novibe.dns.next_dns.http.dto.request.CreateRewriteDto;
 import com.novibe.dns.next_dns.http.dto.response.rewrite.MultiRewriteResponse;
 import com.novibe.dns.next_dns.http.dto.response.rewrite.RewriteDto;
@@ -12,18 +13,30 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class NextDnsRewriteClient extends AbstractNextDnsHttpClient {
+public class NextDnsRewriteClient extends AbstractNextDnsApiClient {
 
     public List<RewriteDto> fetchRewrites() {
         return get(path(), MultiRewriteResponse.class)
                 .getData();
     }
 
-    public SingleRewriteResponse saveRewrite(CreateRewriteDto rewriteDto) {
+    public void saveRewrites(List<CreateRewriteDto> rewriteDtos) {
+        int failedRequests = callApiForEach(rewriteDtos, this::saveRewrite);
+        if (failedRequests > 0) {
+            throw new DnsApiException("Failed to save NextDNS rewrites: %s successful, %s failed of %s requests"
+                    .formatted(rewriteDtos.size() - failedRequests, failedRequests, rewriteDtos.size()));
+        }
+    }
+
+    public void deleteRewritesByIds(List<String> ids) {
+        callApiForEach(ids, this::deleteRewriteById);
+    }
+
+    private SingleRewriteResponse saveRewrite(CreateRewriteDto rewriteDto) {
         return post(path(), rewriteDto, SingleRewriteResponse.class);
     }
 
-    public @Nullable SingleRewriteResponse deleteRewriteById(String id) {
+    private @Nullable SingleRewriteResponse deleteRewriteById(String id) {
         return delete(path() + "/" + id, SingleRewriteResponse.class);
     }
 
