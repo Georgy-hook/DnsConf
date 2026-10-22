@@ -61,6 +61,24 @@ public class NextDnsTaskRunner extends DnsTaskRunner {
             );
         }
 
+        Map<String, CreateRewriteDto> requests = Map.of();
+        Map<String, CreateRewriteDto> desiredRequests = Map.of();
+
+        if (!rewriteSources.isEmpty()) {
+            Log.step("Obtain rewrite lists from %s sources".formatted(rewriteSources.size()));
+            List<BypassRoute> overrides = overrideListsLoader.fetchWebsites(rewriteSources);
+
+            if (nonNull(dnsProfile.donorDns())) {
+                Log.step("Replace IP of domains via IPs from " + dnsProfile.donorDns());
+                DonorDnsUtils.replaceIPs(overrides, dnsProfile);
+            }
+
+            Log.step("Prepare rewrites");
+            requests = nextDnsRewriteService.buildNewRewrites(overrides);
+            desiredRequests = Map.copyOf(requests);
+            nextDnsRewriteService.validateSynchronizedRoots(requests, synchronizedDomains);
+        }
+
         if (!blockSources.isEmpty()) {
             Log.step("Obtain block lists from %s sources".formatted(blockSources.size()));
             List<String> blocks = blockListsLoader.fetchWebsites(blockSources);
@@ -74,18 +92,6 @@ public class NextDnsTaskRunner extends DnsTaskRunner {
         }
 
         if (!rewriteSources.isEmpty()) {
-
-            Log.step("Obtain rewrite lists from %s sources".formatted(rewriteSources.size()));
-            List<BypassRoute> overrides = overrideListsLoader.fetchWebsites(rewriteSources);
-
-            if (nonNull(dnsProfile.donorDns())) {
-                Log.step("Replace IP of domains via IPs from " + dnsProfile.donorDns());
-                DonorDnsUtils.replaceIPs(overrides, dnsProfile);
-            }
-
-            Log.step("Prepare rewrites");
-            Map<String, CreateRewriteDto> requests = nextDnsRewriteService.buildNewRewrites(overrides);
-            Map<String, CreateRewriteDto> desiredRequests = Map.copyOf(requests);
             List<CreateRewriteDto> createRewriteDtos = nextDnsRewriteService.cleanupOutdatedAndExcluded(
                     requests,
                     synchronizedDomains

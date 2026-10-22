@@ -246,6 +246,10 @@ so old specific rules cannot override a refreshed base-domain rule. The source m
 listed base domain; otherwise synchronization stops before rewriting the profile. When this variable is not set,
 existing domains absent from the source are kept as before. This option applies only to NextDNS.
 
+Redirect sources and synchronized roots are validated before either rewrites or the denylist are changed.
+After saving, synchronized rewrites are fetched again and checked against the desired rules. A refused rewrite or
+denylist save fails the profile update instead of reporting success; deletion refusals remain visible in the log.
+
 If redirects appear stale or are ignored, disable **Cache Boost** for this NextDNS profile and reconnect the client to
 clear its local DNS cache. Cache Boost can retain old answers and interfere with overrides.
 
@@ -287,15 +291,18 @@ Previously generated data is removed **ONLY** when both `BLOCK` and `REDIRECT` s
 ## Keep the action running
 
 GitHub disables scheduled workflows in a public repository
-[when there is no repository activity for 60 days](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
-A fork is a public repository, and runs of the action are not counted as activity, so the action stops on its own about
-two months after the setup.
+[if there has been no activity in it for 60 days](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+Your fork is a public repository. Check the run history periodically: a previous successful run does not guarantee
+that scheduled runs are still enabled.
 
-**How to check:** open the _Actions_ tab. A disabled workflow is marked with a notice that scheduled runs are turned off.
-The badge at the top of your fork readme also shows the result of the last run and its date.
+**How to check:** Click the badge below (the same one is at the top of the README) to go to the run history.<br>
+[![Last Build](../../actions/workflows/github_action.yml/badge.svg?branch=main)](../../actions/workflows/github_action.yml)<br>
+A disabled workflow will have a notice that scheduled runs are turned off. In the run history (workflow runs), you can see the date of the last run.
 
-**How to turn it on again:** _Actions_ tab => workflow **DNS Block&Redirect Configurer cron task** => **Enable
-workflow**. Going through the configurator https://dns-conf-ui.vercel.app again enables the workflow as well.
+**How to turn it on again:**
+Click the badge above, choose **Enable workflow** if it is disabled, then use **Run workflow** to refresh the profile.<br>
+_Or_: _Actions_ tab → workflow **DNS Block&Redirect Configurer cron task** → **Enable workflow** → **Run workflow**.<br>
+Reconfiguring via the configurator https://dns-conf-ui.vercel.app also enables the workflow.
 
-Keep in mind that redirect IPs change over time, so a fork that has been disabled for a long time holds outdated rules
-until the next successful run.
+Keep in mind that proxy IPs change over time, so in a fork that has been disabled for a long time, the rules remain
+outdated until the first successful run.
