@@ -1,18 +1,25 @@
 name: Tests
+
 on:
   pull_request:
-  push:
-    branches: [main, 'fix/**']
+
 permissions:
   contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 26
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '26'
           cache: maven
-      - run: mvn -B test
+
+      - name: Run tests
+        run: mvn -B test
