@@ -26,6 +26,7 @@ jobs:
       DONOR_DNS: ${{ vars.DONOR_DNS }}
       DONOR_DNS_DOMAINS: ${{ vars.DONOR_DNS_DOMAINS }}
       SYNC_REDIRECT_DOMAINS: ${{ vars.SYNC_REDIRECT_DOMAINS }}
+      PINNED_REDIRECTS: ${{ vars.PINNED_REDIRECTS }}
 
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

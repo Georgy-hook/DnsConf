@@ -6,6 +6,7 @@ import com.novibe.common.exception.UserInputException;
 import com.novibe.common.util.DonorDnsUtils;
 import com.novibe.common.util.EnvParser;
 import com.novibe.common.util.Log;
+import com.novibe.common.util.PinnedRedirects;
 import com.novibe.dns.next_dns.http.dto.request.CreateRewriteDto;
 import com.novibe.dns.next_dns.service.NextDnsDenyService;
 import com.novibe.dns.next_dns.service.NextDnsRewriteService;
@@ -46,7 +47,8 @@ public class NextDnsTaskRunner extends DnsTaskRunner {
         process(
                 EnvParser.parse(BLOCK),
                 EnvParser.parse(REDIRECT),
-                parseSynchronizedRedirectDomains()
+                parseSynchronizedRedirectDomains(),
+                PinnedRedirects.parse(System.getenv("PINNED_REDIRECTS"))
         );
     }
 
@@ -55,6 +57,13 @@ public class NextDnsTaskRunner extends DnsTaskRunner {
             List<String> rewriteSources,
             List<String> synchronizedDomains
     ) {
+        process(blockSources, rewriteSources, synchronizedDomains, List.of());
+    }
+
+    void process(List<String> blockSources, List<String> rewriteSources,
+                 List<String> synchronizedDomains, List<BypassRoute> pinnedRoutes) {
+        synchronizedDomains = java.util.stream.Stream.concat(synchronizedDomains.stream(),
+                pinnedRoutes.stream().map(BypassRoute::website)).distinct().toList();
         if (!synchronizedDomains.isEmpty() && rewriteSources.isEmpty()) {
             throw UserInputException.noStackTrace(
                     "SYNC_REDIRECT_DOMAINS requires at least one REDIRECT source; refusing to remove settings"
@@ -74,6 +83,7 @@ public class NextDnsTaskRunner extends DnsTaskRunner {
             }
 
             Log.step("Prepare rewrites");
+            overrides = PinnedRedirects.apply(overrides, pinnedRoutes);
             requests = nextDnsRewriteService.buildNewRewrites(overrides);
             desiredRequests = Map.copyOf(requests);
             nextDnsRewriteService.validateSynchronizedRoots(requests, synchronizedDomains);
