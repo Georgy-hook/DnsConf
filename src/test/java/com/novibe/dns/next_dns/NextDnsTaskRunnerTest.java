@@ -20,6 +20,29 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class NextDnsTaskRunnerTest {
 
     @Test
+    void pinnedRootsAreSynchronizedEvenWithoutAnExplicitSyncScope() {
+        List<String> events = new ArrayList<>();
+        NextDnsRewriteService service = new StubRewriteService(events) {
+            @Override
+            public void verifySynchronizedRewrites(Map<String, CreateRewriteDto> desired, List<String> roots) {
+                assertEquals(List.of("oaiusercontent.com"), roots);
+                assertEquals(Map.of("oaiusercontent.com", new CreateRewriteDto("oaiusercontent.com", "45.13.237.213")), desired);
+                super.verifySynchronizedRewrites(desired, roots);
+            }
+        };
+        NextDnsTaskRunner runner = new NextDnsTaskRunner(service, new StubDenyService(events));
+        runner.setDnsProfile(DnsProfile.builder().build());
+        runner.setOverrideListsLoader(new HostsOverrideListsLoader() {
+            @Override public List<BypassRoute> fetchWebsites(List<String> urls) {
+                return List.of(new BypassRoute("193.233.112.88", "sdmntprwestus.oaiusercontent.com"));
+            }
+        });
+        runner.process(List.of(), List.of("https://redirect.example/list"), List.of(),
+                List.of(new BypassRoute("45.13.237.213", "oaiusercontent.com")));
+        assertEquals(List.of("rewrite.build", "rewrite.cleanup", "rewrite.save", "rewrite.verify"), events);
+    }
+
+    @Test
     void rejectsConfiguredScopeWithoutAnySourcesBeforeServiceCalls() {
         List<String> events = new ArrayList<>();
         NextDnsTaskRunner runner = runner(events);
