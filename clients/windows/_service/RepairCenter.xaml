@@ -1,0 +1,54 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="NextDNS — восстановление вложений" Width="860" Height="850" MinWidth="720" MinHeight="580" Background="#0C1623" Foreground="#E7F1FC" FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen">
+ <Window.Resources>
+  <Style TargetType="Button"><Setter Property="Foreground" Value="#DCEBFA"/><Setter Property="Background" Value="#23384D"/><Setter Property="Padding" Value="16,11"/><Setter Property="Margin" Value="0,0,10,8"/><Setter Property="MinHeight" Value="44"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" CornerRadius="12" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="0.85"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="Background" Value="#426686"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
+  <Style TargetType="TextBox"><Setter Property="Background" Value="#0C1725"/><Setter Property="Foreground" Value="#DCEBFA"/><Setter Property="BorderBrush" Value="#426079"/><Setter Property="Padding" Value="10"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="VerticalScrollBarVisibility" Value="Auto"/></Style>
+  <Style TargetType="CheckBox"><Setter Property="Foreground" Value="#DCEBFA"/></Style>
+  <Style TargetType="Expander"><Setter Property="Foreground" Value="#DCEBFA"/></Style>
+ </Window.Resources>
+ <Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <StackPanel Margin="0,0,0,18"><TextBlock Text="GIF или вложение не открывается" FontSize="26" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock Text="Сначала выясним, что отвечает. Затем обновим нужное соединение." Foreground="#93B1CB" Margin="0,6,0,0" TextWrapping="Wrap"/></StackPanel>
+  <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><StackPanel>
+   <Border CornerRadius="18" Background="#142B37" BorderBrush="#345865" BorderThickness="1" Padding="20" Margin="0,0,0,14"><StackPanel>
+    <TextBlock Text="1  ·  Что сейчас с DNS" Foreground="#99E8CF" FontSize="12" FontWeight="SemiBold"/>
+    <TextBlock x:Name="DiagnosisTitle" Text="Проверяю маршрут в фоне…" FontSize="21" FontWeight="SemiBold" Margin="0,7,0,0" TextWrapping="Wrap"/>
+    <TextBlock x:Name="ControlStatus" Text="Проверка ограничена по времени. Окно остаётся доступным." TextWrapping="Wrap" Foreground="#B9CDDC" Margin="0,8,0,12"/>
+    <WrapPanel><Button x:Name="ControlButton" Content="Проверить снова"/><Button x:Name="DnsSettingsButton" Content="Настройки NextDNS ↗"/></WrapPanel>
+    <TextBlock x:Name="BridgeStatus" Text="Проверяю службу подключения NextDNS…" TextWrapping="Wrap" Foreground="#99E8CF" Margin="0,5,0,10"/>
+    <WrapPanel><Button x:Name="BridgeInstallButton" Content="Восстановить NextDNS…"/><Button x:Name="BridgeRestartButton" Content="Перезапустить службу…" IsEnabled="False"/></WrapPanel>
+    <Border x:Name="NetworkConfirm" Visibility="Collapsed" Background="#253341" CornerRadius="12" Padding="14" Margin="0,4,0,10"><StackPanel>
+      <TextBlock x:Name="NetworkConfirmText" TextWrapping="Wrap"/>
+      <WrapPanel Margin="0,12,0,0"><Button x:Name="NetworkConfirmButton" Content="Продолжить с подтверждением Windows"/><Button x:Name="NetworkCancelButton" Content="Отмена"/></WrapPanel>
+    </StackPanel></Border>
+    <Expander Header="Адреса и время проверки" Margin="0,5,0,0"><TextBox x:Name="RouteDetails" IsReadOnly="True" MaxHeight="180" Margin="0,10,0,0" AutomationProperties.Name="Результаты DNS-проверки"/></Expander>
+   </StackPanel></Border>
+   <Border CornerRadius="18" Background="#142536" Padding="20" Margin="0,0,0,14"><StackPanel>
+    <TextBlock Text="2  ·  Если проблема в Chrome" Foreground="#99E8CF" FontSize="12" FontWeight="SemiBold"/>
+    <TextBlock Text="Обновить соединения браузера" FontSize="20" FontWeight="SemiBold" Margin="0,7,0,0"/>
+    <TextBlock Text="Очистка DNS Windows не перезапускает Chrome. Если ранее помогло закрыть и открыть браузер, используйте это действие." TextWrapping="Wrap" Foreground="#B9CDDC" Margin="0,8,0,12"/>
+    <TextBlock x:Name="BrowserStatus" Text="Проверяю, запущен ли Chrome…" TextWrapping="Wrap" Foreground="#E7F1FC" Margin="0,0,0,10"/>
+    <Button x:Name="RestartButton" Content="Перезапустить Chrome…" HorizontalAlignment="Left" Background="#98EFD5" Foreground="#103129"/>
+    <Border x:Name="RestartConfirm" Visibility="Collapsed" CornerRadius="12" Background="#253341" Padding="14" Margin="0,4,0,10"><StackPanel>
+      <TextBlock Text="Закроются все обычные окна Chrome. После полного завершения запросим восстановление вкладок. Сохраните ввод и закончите загрузки; окна инкогнито не восстанавливаются. Приложение Dot останется открытым." TextWrapping="Wrap" Foreground="#CFDCE8"/>
+      <CheckBox x:Name="SavedWork" Content="Всё сохранено, можно закрыть Chrome" Margin="0,12,0,12"/>
+      <WrapPanel><Button x:Name="RestartConfirmButton" Content="Закрыть и открыть Chrome" IsEnabled="False"/><Button x:Name="RestartCancelButton" Content="Отмена"/></WrapPanel>
+    </StackPanel></Border>
+    <WrapPanel><Button x:Name="OpenChromeButton" Content="Открыть Chrome"/><Button x:Name="ChromeButton" Content="Веб-версия Dot в Chrome ↗"/></WrapPanel>
+    <TextBlock Text="Для настольного Dot: сохраните работу, полностью закройте приложение через его меню и запустите снова. Открытие веб-версии не восстанавливает соединения настольного приложения." TextWrapping="Wrap" FontSize="12" Foreground="#A9BED0" Margin="0,4,0,12"/>
+    <Button x:Name="DesktopButton" Content="Открыть приложение ChatGPT / Dot" HorizontalAlignment="Left"/>
+   </StackPanel></Border>
+   <Expander Header="Дополнительно · точечные записи hosts" Margin="4,2,4,14"><StackPanel Margin="0,14,0,0">
+    <Button x:Name="BridgeRestoreButton" Content="Вернуть прежние DNS и службу NextDNS…" HorizontalAlignment="Left" Margin="0,0,0,14"/>
+    <TextBlock Text="Обычно новые адреса уже покрыты общим DNS-правилом. Пустой список ниже — нормальный результат, а не ошибка. Этот способ нужен только для отдельного неподключённого хранилища." TextWrapping="Wrap" Foreground="#ABC1D6" Margin="0,0,0,12"/>
+    <TextBox x:Name="ManualBox" Height="60" AcceptsReturn="True" AutomationProperties.Name="Адрес хранилища или ссылка на вложение" ToolTip="Необязательно. Например: sdmntpreastus2.oaiusercontent.com"/>
+    <TextBlock Text="Из ссылки используется только имя хранилища; параметры не записываются." TextWrapping="Wrap" FontSize="12" Foreground="#8FAEC7" Margin="0,6,0,12"/>
+    <Button x:Name="ScanButton" Content="Найти адреса в DNS-кеше" HorizontalAlignment="Left"/>
+    <TextBlock x:Name="PlanLabel" Text="Поиск запускается только по нажатию кнопки." TextWrapping="Wrap" Foreground="#ABC1D6" Margin="0,8,0,10"/>
+    <TextBox x:Name="PlanBox" Height="95" IsReadOnly="True" FontFamily="Consolas" FontSize="13" AutomationProperties.Name="Предлагаемые изменения hosts"/>
+    <TextBlock Text="Применение создаст новый профиль и попросит подтверждение Windows. Предыдущий профиль сохранится на странице «Серверы»." TextWrapping="Wrap" FontSize="12" Foreground="#8FAEC7" Margin="0,10,0,12"/>
+    <Button x:Name="ApplyButton" Content="Применить hosts с подтверждением…" IsEnabled="False" HorizontalAlignment="Left"/>
+   </StackPanel></Expander>
+   <Expander Header="Что было сделано в этом окне" Margin="4,0,4,8"><TextBox x:Name="RepairLog" IsReadOnly="True" MaxHeight="150" Margin="0,10,0,0" AutomationProperties.Name="Журнал восстановления"/></Expander>
+  </StackPanel></ScrollViewer>
+  <Border Grid.Row="2" Background="#1B3345" CornerRadius="12" Padding="14" Margin="0,14,0,0"><TextBlock x:Name="StatusText" Text="Настройки DNS и hosts сохраняются после закрытия менеджера." TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/></Border>
+ </Grid>
+</Window>

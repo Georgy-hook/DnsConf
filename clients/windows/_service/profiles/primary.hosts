@@ -1,0 +1,47 @@
+# BEGIN CHATGPT-US-WINDOWS
+# Prepared 2026-10-22. Append this block to the EXISTING Windows hosts file.
+# Use PRIMARY OR ALTERNATE, never both. This is not a complete hosts file.
+# Source: https://github.com/Internet-Helper/GeoHideDNS/blob/main/hosts/us/hosts
+# Export date: 2026-10-20. Additional DoH-verified names: chat.openai.com, ws.chatgpt.com.
+# GeoHide US proxy, fixed IPv4: 192.255.159.240. No EU/RU fallback in this block.
+# Static exact names only; no wildcard coverage or automatic updates.
+192.255.159.240 ab.chatgpt.com
+192.255.159.240 android.chat.openai.com
+192.255.159.240 api.openai.com
+192.255.159.240 auth.openai.com
+192.255.159.240 auth0.openai.com
+192.255.159.240 bps.openai.com
+192.255.159.240 cdn.oaistatic.com
+192.255.159.240 cdn.platform.openai.com
+192.255.159.240 chat.openai.com
+192.255.159.240 chatgpt.com
+192.255.159.240 developers.openai.com
+192.255.159.240 files.oaiusercontent.com
+192.255.159.240 ios.chat.openai.com
+192.255.159.240 oaistatic.com
+192.255.159.240 oaiusercontent.com
+192.255.159.240 openai.com
+192.255.159.240 operator.chatgpt.com
+192.255.159.240 platform.openai.com
+192.255.159.240 sdmntpritalynorth.oaiusercontent.com
+192.255.159.240 sdmntprnortheu.oaiusercontent.com
+192.255.159.240 sdmntprpolandcentral.oaiusercontent.com
+192.255.159.240 sdmntprukwest.oaiusercontent.com
+192.255.159.240 tcr9i.chat.openai.com
+192.255.159.240 videos.openai.com
+192.255.159.240 webrtc.chatgpt.com
+192.255.159.240 ws.chatgpt.com
+192.255.159.240 www.chatgpt.com
+192.255.159.240 www.oaistatic.com
+192.255.159.240 www.oaiusercontent.com
+192.255.159.240 www.openai.com
+192.255.159.240 sdmntprsouthcentralus.oaiusercontent.com
+# Local extension: TLS verified 2026-10-23; original cached route timed out.
+192.255.159.240 codex-cloud-backend.chatgpt.com
+# Local extension: TLS verified 2026-10-23; original cached route timed out.
+192.255.159.240 codex-cloud-environments.chatgpt.com
+# Local extension: observed Dot ZIP timed out on old DNS route 2026-10-23; hostname TLS verified.
+192.255.159.240 sdmntprwestcentralus.oaiusercontent.com
+# Local extension: observed Dot image timed out on old DNS route 2026-10-23; hostname TLS verified.
+192.255.159.240 sdmntprcentralus.oaiusercontent.com
+# END CHATGPT-US-WINDOWS

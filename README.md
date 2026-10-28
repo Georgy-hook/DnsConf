@@ -8,6 +8,8 @@
 
 **Ready-to-run via GitHub Actions.** [Video guide](https://www.youtube.com/watch?v=vbAXM_xAL5I)
 
+A separate [Windows GUI, tray manager and NextDNS Bridge service](clients/windows/README.md) is now available as a preview. Sources and tests live in this repository; portable builds are published in [Releases](https://github.com/Georgy-hook/DnsConf/releases). See the [verification limits](clients/windows/VERIFICATION.md) and the [headless macOS port plan](docs/macos-client.md).
+
 ## Comparison of Free Plans: NextDNS vs Cloudflare
 
 |                                  | NextDNS                                                         | Cloudflare                                                                                                           |

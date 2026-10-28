@@ -1,0 +1,51 @@
+# BEGIN CHATGPT-EU-PRIMARY
+# Prepared 2026-10-23; append as one selected profile to the existing Windows hosts file.
+# Exactly one mapping per hostname; preserve unrelated hosts entries.
+# Source: https://raw.githubusercontent.com/Internet-Helper/GeoHideDNS/667629516e8d554915f0b3995fa006fabe202be9/hosts/eu/hosts
+# Source export: 20.10.2026 04:56:12; operator labels this list EU.
+# Variant: first unique address in source order for each exact hostname.
+# EU is the operator region label; no individual country or egress geography is independently asserted.
+# Local extensions absent from raw source: chat.openai.com, ws.chatgpt.com, sdmntprsouthcentralus.oaiusercontent.com.
+# Each extension uses this variant of source chatgpt.com and passed hostname-specific TLS/HTTP probes.
+# TLS/root checks do not prove login, file upload/download, or model availability.
+# Verified UTC: 2026-10-23T12:46:12.4857277Z
+45.13.237.213 ab.chatgpt.com
+45.13.237.213 android.chat.openai.com
+45.13.237.213 api.openai.com
+45.13.237.213 auth.openai.com
+45.13.237.213 auth0.openai.com
+5.175.161.40 bps.openai.com
+37.221.93.141 cdn.oaistatic.com
+37.221.93.141 cdn.platform.openai.com
+45.13.237.213 chat.openai.com
+45.13.237.213 chatgpt.com
+45.13.237.213 developers.openai.com
+5.175.161.40 files.oaiusercontent.com
+5.175.161.40 ios.chat.openai.com
+45.13.237.213 oaistatic.com
+45.13.237.213 oaiusercontent.com
+45.13.237.213 openai.com
+5.175.161.40 operator.chatgpt.com
+5.175.161.40 platform.openai.com
+37.221.93.128 sdmntpritalynorth.oaiusercontent.com
+45.13.237.213 sdmntprnortheu.oaiusercontent.com
+45.13.237.213 sdmntprpolandcentral.oaiusercontent.com
+45.13.237.213 sdmntprsouthcentralus.oaiusercontent.com
+37.221.93.141 sdmntprukwest.oaiusercontent.com
+45.13.237.213 tcr9i.chat.openai.com
+45.13.237.213 videos.openai.com
+45.13.237.213 webrtc.chatgpt.com
+45.13.237.213 ws.chatgpt.com
+5.175.161.3 www.chatgpt.com
+45.13.237.213 www.oaistatic.com
+5.175.161.3 www.oaiusercontent.com
+45.13.237.213 www.openai.com
+# Local extension: TLS verified 2026-10-23; original cached route timed out.
+45.13.237.213 codex-cloud-backend.chatgpt.com
+# Local extension: TLS verified 2026-10-23; original cached route timed out.
+45.13.237.213 codex-cloud-environments.chatgpt.com
+# Local extension: observed Dot ZIP timed out on old DNS route 2026-10-23; hostname TLS verified.
+45.13.237.213 sdmntprwestcentralus.oaiusercontent.com
+# Local extension: observed Dot image timed out on old DNS route 2026-10-23; hostname TLS verified.
+45.13.237.213 sdmntprcentralus.oaiusercontent.com
+# END CHATGPT-EU-PRIMARY

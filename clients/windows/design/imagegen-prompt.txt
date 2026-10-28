@@ -1,0 +1,8 @@
+Use case: stylized-concept
+Asset type: hero illustration for a polished native desktop connection settings app, dark charcoal UI with mint accents.
+Primary request: a beautiful sculptural representation of a calm, reliable digital connection: a single floating smoked-glass orbital torus with a luminous sea-glass mint core and a subtle smaller satellite bead, finely machined brushed titanium details, studio product rendering.
+Composition/framing: landscape 3:2, object centered with generous dark negative space, isolated artwork rather than a screenshot or a UI mockup. Clear silhouette readable at 350x230.
+Scene/backdrop: seamless near-black graphite #10171C background, barely visible soft floor shadow.
+Lighting/mood: soft mint and very subtle cool-blue rim light, premium quiet tactile realism, restrained bloom, sharp detailed materials, elegant not busy.
+Text: no text.
+Constraints: no logos, no UI, no words or letters, no network diagram, no lock or shield, no watermark.
