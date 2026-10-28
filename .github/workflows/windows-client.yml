@@ -1,0 +1,37 @@
+name: Windows client
+
+on:
+  push:
+    paths:
+      - 'clients/windows/**'
+      - '.github/workflows/windows-client.yml'
+  pull_request:
+    paths:
+      - 'clients/windows/**'
+      - '.github/workflows/windows-client.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          architecture: x64
+      - name: Protocol, recovery and UI checks
+        run: .\clients\windows\tests\Run-Tests.ps1 -PythonExe python.exe
+      - name: Build portable client
+        run: .\clients\windows\Build.ps1 -PythonExe python.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NextDNS-Windows-preview
+          path: clients/windows/dist/*

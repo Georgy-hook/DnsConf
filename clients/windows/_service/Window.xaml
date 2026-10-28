@@ -1,0 +1,432 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="NextDNS — подключение ChatGPT" Width="1220" Height="950" MinWidth="980" MinHeight="680" WindowStartupLocation="CenterScreen" Background="#0C121C" Foreground="#EDF4FD" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="HighQuality">
+  <Window.Resources>
+    <SolidColorBrush x:Key="Muted" Color="#9CAEC4" />
+    <Style TargetType="TextBlock">
+      <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+    </Style>
+    <Style TargetType="Image">
+      <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality" />
+      <Setter Property="SnapsToDevicePixels" Value="True" />
+      <Setter Property="Stretch" Value="Uniform" />
+    </Style>
+    <Style x:Key="ActionButton" TargetType="Button">
+      <Setter Property="Background" Value="#1B2C40" />
+      <Setter Property="Foreground" Value="#E8F1FC" />
+      <Setter Property="BorderBrush" Value="#354A63" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="16,11" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="FocusVisualStyle">
+        <Setter.Value>
+          <Style TargetType="Control">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate>
+                  <Border BorderThickness="2" BorderBrush="#91F2D2" CornerRadius="16" Margin="-3" />
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="14" Padding="{TemplateBinding Padding}">
+              <Grid>
+                <Border x:Name="Hover" Background="White" Opacity="0" CornerRadius="12" Margin="-7" />
+                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Hover" Property="Opacity" Value="0.06" />
+                <Setter TargetName="Surface" Property="BorderBrush" Value="#739FB4" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Hover" Property="Opacity" Value="0.12" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Surface" Property="Opacity" Value="0.4" />
+                <Setter Property="Cursor" Value="Arrow" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="#A4B7CE" />
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="#A4B7CE" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="14,14" />
+      <Setter Property="Margin" Value="0,3" />
+    </Style>
+    <Style TargetType="CheckBox">
+      <Setter Property="Foreground" Value="#9CAEC4" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style TargetType="TextBox">
+      <Setter Property="Background" Value="#111E2D" />
+      <Setter Property="Foreground" Value="#DBE8F7" />
+      <Setter Property="BorderBrush" Value="#2E425A" />
+      <Setter Property="Padding" Value="10,7" />
+      <Setter Property="CaretBrush" Value="#91F2D2" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="TextBox">
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10">
+              <Grid>
+                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                <TextBlock x:Name="Placeholder" Text="{TemplateBinding Tag}" Foreground="#7F9AB6" FontSize="{TemplateBinding FontSize}" Margin="{TemplateBinding Padding}" Visibility="Collapsed" IsHitTestVisible="False" />
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="Text" Value="">
+                <Setter TargetName="Placeholder" Property="Visibility" Value="Visible" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="ToolTip">
+      <Setter Property="Background" Value="#1C2D42" />
+      <Setter Property="Foreground" Value="#EEF4FC" />
+      <Setter Property="BorderBrush" Value="#49617D" />
+      <Setter Property="Padding" Value="12,8" />
+      <Setter Property="MaxWidth" Value="440" />
+    </Style>
+    <Style TargetType="ScrollBar">
+      <Setter Property="Width" Value="8" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ScrollBar">
+            <Grid Background="{TemplateBinding Background}">
+              <Track x:Name="PART_Track" IsDirectionReversed="True">
+                <Track.DecreaseRepeatButton>
+                  <RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Opacity="0" Focusable="False" />
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb>
+                  <Thumb>
+                    <Thumb.Template>
+                      <ControlTemplate>
+                        <Border Background="#3B506A" CornerRadius="4" Margin="2" />
+                      </ControlTemplate>
+                    </Thumb.Template>
+                  </Thumb>
+                </Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                  <RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Opacity="0" Focusable="False" />
+                </Track.IncreaseRepeatButton>
+              </Track>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+  <Grid x:Name="PageRoot" Background="#0C121C">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="182" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Border Background="#101B29" BorderBrush="#233348" BorderThickness="0,0,1,0">
+      <Grid Margin="15,24,15,20">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="98" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <Image x:Name="AppIcon" Width="49" Height="49" Margin="-4,0,5,0" />
+            <TextBlock Text="NextDNS" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+          </StackPanel>
+          <TextBlock Text="CHATGPT / WINDOWS" Foreground="#738CA9" FontSize="9" Margin="7,10,0,0" />
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+          <Button x:Name="OverviewNavButton" Style="{StaticResource NavButton}" AutomationProperties.Name="Обзор подключения">
+            <StackPanel Orientation="Horizontal">
+              <Grid Width="34" Height="34" Margin="-4,0,8,0">
+                <TextBlock x:Name="OverviewNavFallback" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Image x:Name="OverviewNavIcon" Width="34" Height="34" />
+              </Grid>
+              <TextBlock Text="Обзор" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Button x:Name="ServersNavButton" Style="{StaticResource NavButton}" AutomationProperties.Name="Список серверов">
+            <StackPanel Orientation="Horizontal">
+              <Grid Width="34" Height="34" Margin="-4,0,8,0">
+                <TextBlock x:Name="ServersNavFallback" Text="" FontFamily="Segoe MDL2 Assets" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Image x:Name="ServersNavIcon" Width="34" Height="34" />
+              </Grid>
+              <TextBlock Text="Серверы" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <StackPanel Grid.Row="3">
+          <TextBlock x:Name="ManagerStatusText" Text="● Менеджер работает" Foreground="#98EFD5" FontSize="12" Margin="7,0,0,8" />
+          <TextBlock x:Name="TransportStatusText" Text="NextDNS: проверяю службу…" Foreground="#AFC5D6" FontSize="11" TextWrapping="Wrap" Margin="7,0,0,8" />
+          <TextBlock Text="Закрытие окна → трей. DNS и hosts работают и без менеджера." TextWrapping="Wrap" Foreground="#9FB4CF" FontSize="11" Margin="7,0,0,10" />
+          <Button x:Name="HideToTrayButton" Content="Свернуть в трей" Style="{StaticResource QuietButton}" Margin="0,0,0,8" />
+          <Button x:Name="ExitManagerButton" Content="Выйти из менеджера" Style="{StaticResource QuietButton}" Margin="0,0,0,8" FontSize="11" ToolTip="Завершить менеджер. Настройки DNS и hosts сохранятся." />
+          <CheckBox x:Name="StartWithWindows" Content="Запускать с Windows" Margin="7,0,0,12" FontSize="11" ToolTip="Запускать менеджер в трее после входа в Windows" />
+          <TextBlock Text="ЛОКАЛЬНЫЙ МЕНЕДЖЕР" Foreground="#6E88A5" FontSize="9" Margin="7,0,0,12" />
+          <Button x:Name="OpenLogButton" Content="Папка журналов ↗" Style="{StaticResource QuietButton}" HorizontalContentAlignment="Left" Margin="-4,0,0,12" />
+          <CheckBox x:Name="ReducedMotion" Content="Без анимаций" Margin="7,0,0,8" AutomationProperties.Name="Уменьшить движение интерфейса" ToolTip="Также учитываются системные настройки анимаций Windows" />
+          <TextBlock x:Name="ProxyText" Text="" Foreground="#7890AD" FontSize="11" Margin="7,6,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Grid Grid.Column="1" Margin="28,24,28,18">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="62" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="18" />
+        <RowDefinition Height="225" />
+        <RowDefinition Height="22" />
+      </Grid.RowDefinitions>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+          <TextBlock x:Name="PageTitle" Text="Обзор подключения" FontSize="26" FontWeight="SemiBold" />
+          <TextBlock x:Name="PageSubtitle" Text="Текущее состояние, причины и следующее действие" Foreground="#8FA6C2" FontSize="12" Margin="0,5,0,0" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="12,4,0,0">
+          <TextBlock x:Name="HealthAtText" Text="Диагностика при запуске…" Foreground="#9CB5CF" FontSize="12" HorizontalAlignment="Right" />
+          <TextBlock x:Name="LastReadText" Text="" Foreground="#667F9D" FontSize="11" HorizontalAlignment="Right" Margin="0,6,0,0" />
+        </StackPanel>
+      </Grid>
+      <ScrollViewer x:Name="OverviewPage" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" Focusable="False">
+        <StackPanel Margin="0,0,4,0">
+          <Border x:Name="HeroCard" CornerRadius="24" BorderThickness="1" BorderBrush="#345865" Padding="22,18">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#1B3942" Offset="0" />
+                <GradientStop Color="#14293A" Offset="0.65" />
+                <GradientStop Color="#142233" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="160" />
+              </Grid.ColumnDefinitions>
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Border x:Name="HealthPill" Background="#3D3C2D" CornerRadius="7" Padding="8,4">
+                    <TextBlock x:Name="HealthBadge" Text="ПРОВЕРЯЮ МАРШРУТ" FontSize="11" FontWeight="Bold" Foreground="#EDD49F" />
+                  </Border>
+                  <TextBlock Text="ПРЯМО СЕЙЧАС" Foreground="#8CA7BB" FontSize="9" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock x:Name="HealthTitle" Text="Проверяю подключение…" FontSize="26" FontWeight="SemiBold" Margin="0,10,0,0" TextWrapping="Wrap" />
+                <TextBlock x:Name="HealthDescription" Text="Читаю настройки Windows и проверяю сетевой маршрут." Foreground="#AEC6D9" FontSize="13" Margin="0,7,0,0" TextWrapping="Wrap" />
+                <Button x:Name="CacheButton" Style="{StaticResource ActionButton}" Background="#98EFD5" Foreground="#0F302A" BorderBrush="#98EFD5" HorizontalAlignment="Left" Margin="0,14,0,0" Padding="10,4,17,4" AutomationProperties.Name="Проверить текущие настройки и сетевой маршрут">
+                  <StackPanel Orientation="Horizontal">
+                    <Image x:Name="CacheIcon" Width="48" Height="48" Margin="0,0,8,0" />
+                    <TextBlock Text="Проверить снова" VerticalAlignment="Center" FontSize="13" />
+                  </StackPanel>
+                </Button>
+              </StackPanel>
+              <Grid Grid.Column="1" Margin="6,0,-10,0" IsHitTestVisible="False">
+                <Border x:Name="ArtFallback" Background="#183747" CornerRadius="22" />
+                <TextBlock x:Name="ArtFallbackGlyph" Text="" FontFamily="Segoe MDL2 Assets" FontSize="72" Foreground="#528E9A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Image x:Name="HeroImage" Stretch="Uniform" AutomationProperties.Name="Стеклянная орбитальная скульптура" />
+              </Grid>
+            </Grid>
+          </Border>
+          <Border Background="#142132" BorderBrush="#2A3F56" BorderThickness="1" CornerRadius="20" Padding="17,13" Margin="0,14,0,0">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <Image x:Name="ActiveFlag" Width="64" Height="48" Margin="0,0,13,0" />
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="АКТИВНЫЙ ПРОФИЛЬ" Foreground="#859DB9" FontSize="9" />
+                  <Border x:Name="StatusPill" Background="#1D443D" CornerRadius="5" Padding="5,2" Margin="9,-2,0,0">
+                    <StackPanel Orientation="Horizontal">
+                      <Ellipse x:Name="StatusDot" Width="4" Height="4" Fill="#91F2D2" Margin="0,0,4,0" />
+                      <TextBlock x:Name="StatusBadge" Text="HOSTS" FontSize="8" Foreground="#91F2D2" />
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+                <TextBlock x:Name="StatusTitle" Text="Читаю системный hosts…" FontSize="16" FontWeight="SemiBold" Margin="0,5,0,0" TextTrimming="CharacterEllipsis" />
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                  <TextBlock x:Name="AddressText" Text="—" Foreground="#96B4CE" FontFamily="Consolas" FontSize="12" />
+                  <TextBlock x:Name="EntriesText" Text="" Foreground="#7895B2" FontSize="12" Margin="12,0,0,0" />
+                </StackPanel>
+                <TextBlock x:Name="StatusDescription" Visibility="Collapsed" />
+              </StackPanel>
+              <Button Grid.Column="2" x:Name="ChangeServerButton" Content="Сменить сервер →" Style="{StaticResource QuietButton}" VerticalAlignment="Center" />
+            </Grid>
+          </Border>
+          <Grid Margin="2,18,2,4" x:Name="HealthDetailsPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="48" />
+              <RowDefinition Height="48" />
+              <RowDefinition Height="48" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="112" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="ChatGPT" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" x:Name="AppHealthText" Text="Определяю приложение…" Foreground="#9FB4CF" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <Button Grid.Column="2" x:Name="OpenAppButton" Content="Открыть ↗" Style="{StaticResource QuietButton}" VerticalAlignment="Center" IsEnabled="False" />
+            <Border Grid.Row="1" Grid.ColumnSpan="3" BorderBrush="#223449" BorderThickness="0,1,0,0" />
+            <TextBlock Grid.Row="1" Text="Маршрут" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="RouteHealthText" Text="DNS / TLS / HTTP проверяются в фоне" Foreground="#9FB4CF" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="1" Grid.Column="2" x:Name="RouteTimeText" Text="" Foreground="#7EA2B6" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center" />
+            <Border Grid.Row="2" Grid.ColumnSpan="3" BorderBrush="#223449" BorderThickness="0,1,0,0" />
+            <TextBlock Grid.Row="2" Text="Кеш и журнал" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="CacheHealthText" Text="Собираю сведения…" Foreground="#9FB4CF" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <TextBlock Grid.Row="2" Grid.Column="2" x:Name="LogsSizeText" Text="" Foreground="#7EA2B6" FontSize="12" VerticalAlignment="Center" />
+          </Grid>
+          <Grid x:Name="ToolsPanel" Margin="0,7,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="CheckButton" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Padding="8,3,16,3" AutomationProperties.Name="Очистить DNS кеш Windows и повторить проверку">
+              <StackPanel Orientation="Horizontal">
+                <Image x:Name="CheckIcon" Width="48" Height="48" Margin="0,0,7,0" />
+                <TextBlock Text="Очистить DNS-кеш" VerticalAlignment="Center" FontSize="12" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" x:Name="RepairButton" Content="GIF / вложения не работают…" Style="{StaticResource ActionButton}" Margin="10,0,0,0" VerticalAlignment="Center" AutomationProperties.Name="Диагностика и восстановление вложений" />
+          </Grid>
+        </StackPanel>
+      </ScrollViewer>
+      <Grid Grid.Row="1" x:Name="ServersPage" Visibility="Collapsed">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="47" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="84" />
+        </Grid.RowDefinitions>
+        <Grid>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Image x:Name="GlobeIcon" Width="44" Height="44" Margin="-4,0,6,0" />
+            <TextBlock x:Name="ProfileCountText" Text="Профили подключения" Foreground="#9DB3CD" FontSize="13" VerticalAlignment="Center" />
+          </StackPanel>
+          <Button x:Name="ImportButton" Style="{StaticResource QuietButton}" HorizontalAlignment="Right" Padding="3,0,10,0">
+            <StackPanel Orientation="Horizontal">
+              <Image x:Name="ImportIcon" Width="44" Height="44" Margin="0,0,5,0" />
+              <TextBlock Text="Добавить сервер" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </Grid>
+        <ScrollViewer Grid.Row="1" x:Name="ServersPanel" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Margin="0,8,-4,0">
+          <UniformGrid x:Name="ProfilesPanel" Columns="2" VerticalAlignment="Top" />
+        </ScrollViewer>
+        <Border Grid.Row="2" Background="#172C3A" BorderBrush="#345569" BorderThickness="1" CornerRadius="20" Padding="15,11" Margin="0,10,0,0">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock x:Name="SelectedProfileText" Text="Выберите профиль" FontWeight="SemiBold" FontSize="14" />
+              <TextBlock x:Name="SelectedProfileDetail" Text="Изменения применяются отдельно" Foreground="#8DAFC6" FontSize="12" Margin="0,4,0,0" />
+            </StackPanel>
+            <Button Grid.Column="1" x:Name="RestoreButton" Style="{StaticResource QuietButton}" Margin="12,0" Padding="4,2,9,2">
+              <StackPanel Orientation="Horizontal">
+                <Image x:Name="PowerIcon" Width="44" Height="44" Margin="0,0,3,0" />
+                <TextBlock Text="Отключить" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" x:Name="ApplyProfileButton" Content="Подключить" Style="{StaticResource ActionButton}" Background="#98EFD5" Foreground="#103129" BorderBrush="#98EFD5" MinWidth="138" VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+      </Grid>
+      <Border Grid.Row="3" x:Name="JournalCard" Background="#101C2B" BorderBrush="#2A3F56" BorderThickness="1" CornerRadius="22">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="49" />
+            <RowDefinition Height="39" />
+            <RowDefinition Height="3" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="25" />
+          </Grid.RowDefinitions>
+          <Grid Margin="14,0,12,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+              <Image x:Name="LogIcon" Width="40" Height="40" Margin="-3,0,5,0" />
+              <TextBlock Text="Журнал" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock x:Name="ActionTitle" Grid.Column="1" Text="Готово к работе" Foreground="#8FAAC5" FontSize="12" Margin="14,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" AutomationProperties.LiveSetting="Polite" />
+            <Button Grid.Column="2" x:Name="CopyLogButton" Content="Копировать" Style="{StaticResource QuietButton}" />
+            <Button Grid.Column="3" x:Name="ClearLogButton" Content="Очистить…" Style="{StaticResource QuietButton}" />
+          </Grid>
+          <Grid Grid.Row="1" Margin="14,0,15,5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="FilterAllButton" Content="Все" Style="{StaticResource QuietButton}" Padding="10,5" />
+              <Button x:Name="FilterErrorsButton" Content="Ошибки" Style="{StaticResource QuietButton}" Padding="10,5" />
+              <Button x:Name="FilterActionsButton" Content="Действия" Style="{StaticResource QuietButton}" Padding="10,5" />
+            </StackPanel>
+            <TextBox Grid.Column="1" x:Name="LogSearchBox" MaxWidth="220" HorizontalAlignment="Right" MinWidth="135" Margin="12,0,13,0" FontSize="12" Padding="9,6" AutomationProperties.Name="Поиск в журнале" ToolTip="Поиск по тексту журнала" Tag="Поиск по журналу" />
+            <CheckBox Grid.Column="2" x:Name="AutoScrollCheck" Content="Автопрокрутка" IsChecked="True" VerticalAlignment="Center" />
+          </Grid>
+          <ProgressBar Grid.Row="2" x:Name="ActivityBar" Minimum="0" Maximum="100" Value="0" Height="3" Foreground="#91F2D2" Background="#1D3044" BorderThickness="0" />
+          <ListBox Grid.Row="3" x:Name="LogBox" Background="#0E1825" Foreground="#BACDE2" BorderThickness="0" Padding="14,5" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Живой журнал событий">
+            <ListBox.ItemContainerStyle>
+              <Style TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="0,3" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="Template">
+                  <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                      <Border x:Name="Row" Background="Transparent" CornerRadius="5">
+                        <ContentPresenter />
+                      </Border>
+                      <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                          <Setter TargetName="Row" Property="Background" Value="#253D54" />
+                        </Trigger>
+                      </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                  </Setter.Value>
+                </Setter>
+              </Style>
+            </ListBox.ItemContainerStyle>
+          </ListBox>
+          <TextBlock Grid.Row="4" x:Name="ActivityDetail" Text="Диагностика запущена автоматически" Foreground="#829DB9" FontSize="12" Margin="16,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        </Grid>
+      </Border>
+      <TextBlock Grid.Row="4" Text="Настройки и диагностика локальны. Вход в аккаунт сохраняется." Foreground="#647F9D" FontSize="10" Margin="2,9,0,0" />
+    </Grid>
+  </Grid>
+</Window>

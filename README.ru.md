@@ -8,6 +8,8 @@
 
 **Может работать через GitHub Actions. Ничего скачивать, устанавливать не нужно!**
 
+Для локального восстановления DNS добавлен [Windows-клиент с GUI, треем и службой NextDNS Bridge](clients/windows/README.md). Исходники и тесты находятся в репозитории, готовый ZIP — в [Releases](https://github.com/Georgy-hook/DnsConf/releases). Это предварительная версия с [описанными ограничениями проверки](clients/windows/VERIFICATION.md). Для будущего клиента macOS без GUI есть [план переноса](docs/macos-client.md).
+
 ## Сравнение бесплатных тарифов NextDNS и Cloudflare
 
 |                                  | NextDNS                                                | Cloudflare                                                                                            |

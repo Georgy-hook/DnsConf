@@ -1,0 +1,8 @@
+{
+  "routes": [
+    { "domain": "oaiusercontent.com", "label": "GIF, видео и файлы", "addresses": ["45.13.237.213", "37.221.93.128"] },
+    { "domain": "chatgpt.com", "label": "ChatGPT", "addresses": ["192.255.159.241", "192.255.159.240"] },
+    { "domain": "openai.com", "label": "Сервисы OpenAI", "addresses": ["192.255.159.241", "192.255.159.240"] },
+    { "domain": "oaistatic.com", "label": "Интерфейс", "addresses": ["192.255.159.241", "192.255.159.240"] }
+  ]
+}

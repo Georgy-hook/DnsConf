@@ -1,0 +1,60 @@
+{
+  "Version": 1,
+  "Profiles": [
+    {
+      "id": "us-eu",
+      "name": "US + EU — ChatGPT и вложения",
+      "region": "США + Европейский союз",
+      "countryCode": "EU",
+      "hostsFile": "profiles/us-eu.hosts",
+      "address": null,
+      "description": "ChatGPT через US 192.255.159.241; известные хранилища через EU 45.13.237.213. Новые поддомены покрываются правилами NextDNS. Проверка 28.10.2026: GIF загрузилась, управление подключилось; длительная сессия прерывалась Cloudflare 403. Проверка перезагрузки не завершена.",
+      "verifiedAt": null,
+      "domainCount": 37
+    },
+    {
+      "id": "primary",
+      "name": "США — основной",
+      "region": "US",
+      "countryCode": "US",
+      "hostsFile": "profiles\\primary.hosts",
+      "address": "192.255.159.240",
+      "description": "GeoHide. Central и Westcentral добавлены по фактическим запросам изображений и ZIP в Dot 23.10.2026. TLS проверен; полное скачивание проверяется отдельно.",
+      "verifiedAt": "2026-10-23T15:48:55.7274887+03:00",
+      "domainCount": 35
+    },
+    {
+      "id": "alternate",
+      "name": "США — запасной",
+      "region": "US",
+      "countryCode": "US",
+      "hostsFile": "profiles\\alternate.hosts",
+      "address": "192.255.159.241",
+      "description": "GeoHide. Central и Westcentral добавлены по фактическим запросам изображений и ZIP в Dot 23.10.2026. TLS проверен; полное скачивание проверяется отдельно.",
+      "verifiedAt": "2026-10-23T15:48:55.743302+03:00",
+      "domainCount": 35
+    },
+    {
+      "id": "eu-primary",
+      "name": "GeoHide EU — основной",
+      "region": "EU",
+      "countryCode": "EU",
+      "hostsFile": "profiles\\eu-primary.hosts",
+      "description": "GeoHide. Central и Westcentral добавлены по фактическим запросам изображений и ZIP в Dot 23.10.2026. TLS проверен; полное скачивание проверяется отдельно. Проверка Dot 28.10: после обновления страницы Dot недоступен на EU-маршруте; для Dot используйте US + EU для вложений.",
+      "verifiedAt": "2026-10-23T12:46:12.4857277Z",
+      "address": null,
+      "domainCount": 35
+    },
+    {
+      "id": "eu-alternate",
+      "name": "GeoHide EU — запасной",
+      "region": "EU",
+      "countryCode": "EU",
+      "hostsFile": "profiles\\eu-alternate.hosts",
+      "description": "GeoHide. Central и Westcentral добавлены по фактическим запросам изображений и ZIP в Dot 23.10.2026. TLS проверен; полное скачивание проверяется отдельно.",
+      "verifiedAt": "2026-10-23T12:46:12.4857277Z",
+      "address": null,
+      "domainCount": 35
+    }
+  ]
+}

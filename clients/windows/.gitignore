@@ -1,0 +1,14 @@
+.build/
+dist/
+_service/bin/
+_service/bridge/python/
+_service/bridge/NextDNSBridge.exe
+_service/bridge/runtime-hashes.json
+_service/backups/
+_service/run-results/
+_service/*-state.json
+_service/GUI-settings.json
+_service/*.log
+_service/*.lock
+__pycache__/
+*.pyc
